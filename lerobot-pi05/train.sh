@@ -10,7 +10,15 @@ source ../common/prompt_tokens.sh
 : "${OUTPUT_DIR:=/workspace/outputs/pi05}"
 : "${JOB_NAME:=pi05_cube_transfer_final}"
 : "${STEPS:=3000}"
-: "${BATCH_SIZE:=8}"
+: "${BATCH_SIZE:=16}"
+: "${RESUME:=0}"
+
+BASE_OUT="/workspace/outputs/pi05"
+
+# If user sets OUTPUT_DIR to the base folder, make it unique unless resuming
+if [[ "${OUTPUT_DIR}" == "${BASE_OUT}" && "${RESUME}" != "1" ]]; then
+  OUTPUT_DIR="${BASE_OUT}/${JOB_NAME}_$(date +%Y%m%d_%H%M%S)"
+fi
 
 docker compose run --rm \
   -e HF_TOKEN \
@@ -40,7 +48,7 @@ PY
       --output_dir="${OUTPUT_DIR}" \
       --job_name="${JOB_NAME}" \
       --policy.repo_id="local/pi05" \
-      --policy.push_to_hub=false \
+      --policy.push_to_hub=true \
       --policy.pretrained_path=lerobot/pi05_base \
       --policy.compile_model=true \
       --policy.gradient_checkpointing=true \
