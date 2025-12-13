@@ -22,7 +22,7 @@ The fastest way to get started is to deploy a preconfigured launchable on Brev. 
 
 ### LeRobot π0.5 (pi05)
 
-[![Deploy LeRobot π0.5 on Brev](https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg)](https://brev.nvidia.com/launchable/deploy/now?launchableID=YOUR_PI05_LAUNCHABLE_ID)
+[![Deploy LeRobot π0.5 on Brev](https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg)](https://brev.nvidia.com/launchable/deploy?launchableID=env-36lFUACCCYMoYRnJQO2WISupFDU)
 
 Fine-tune LeRobot's π0.5 policy model on your own dataset. Supports Hugging Face datasets and W&B logging.
 
