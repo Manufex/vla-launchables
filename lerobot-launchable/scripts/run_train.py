@@ -14,25 +14,8 @@ from pathlib import Path
 
 
 def install_policy_extras(policy_type: str):
-    """Install lerobot extras based on policy type.
-    
-    Note: For groot, all dependencies (PyTorch, flash-attn, lerobot[groot])
-    are installed in the Dockerfile.groot, so we just verify they're available.
-    """
+    """Install lerobot extras based on policy type."""
     print(f"Installing lerobot extras for policy type: {policy_type}")
-    
-    # For groot, dependencies are installed in Dockerfile.groot
-    # Just verify flash-attn is available
-    if policy_type == "groot":
-        print("Groot: Verifying flash-attn is available (should be installed in Dockerfile)...")
-        try:
-            import flash_attn
-            print(f"✓ Flash Attention {flash_attn.__version__} is available")
-        except ImportError:
-            print("✗ ERROR: Flash-attn not found!")
-            print("Groot requires flash-attn. Make sure you're using Dockerfile.groot")
-            print("and docker-compose.groot.yml for groot training.")
-        return
     
     install_commands = {
         "xvla": ["pip", "install", "-e", "/opt/lerobot[xvla]"],
