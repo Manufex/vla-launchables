@@ -33,6 +33,8 @@ fi
 docker compose run --rm \
   -e HF_TOKEN \
   -e WANDB_API_KEY \
+  -e BREV_ENV_ID \
+  -e BREV_TOKEN \
   -e CONFIG_FILE="${CONFIG_FILE}" \
   lerobot python3 scripts/run_train.py --config "${CONFIG_FILE}"
 

@@ -11,3 +11,8 @@ if [ -z "${WANDB_API_KEY:-}" ]; then
   export WANDB_API_KEY
 fi
 
+# Note: Brev credentials (BREV_ENV_ID, BREV_TOKEN) are optional
+# They will only be needed if auto_delete.enable is true in the config
+# Users can set them via environment variables or they'll be prompted
+# in run_train.py if auto_delete is enabled
+

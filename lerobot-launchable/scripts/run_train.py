@@ -6,6 +6,7 @@ Uploads trained model to Hugging Face Hub after training completes.
 """
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 import yaml
@@ -165,6 +166,60 @@ def upload_to_hub(output_dir: str, repo_id: str, private: bool = True):
         return False
 
 
+def delete_brev_instance(env_id: str, token: str):
+    """Delete Brev instance after training completes."""
+    print(f"\n{'='*60}")
+    print(f"Auto-deleting Brev instance")
+    print(f"{'='*60}")
+    print(f"Environment ID: {env_id}")
+    print()
+    
+    try:
+        # Check if brev CLI is available
+        brev_path = shutil.which("brev")
+        
+        # Install brev CLI if not available
+        if not brev_path:
+            print("Installing brev CLI...")
+            install_result = subprocess.run(
+                ["sudo", "bash", "-c", 
+                 "$(curl -fsSL https://raw.githubusercontent.com/brevdev/brev-cli/main/bin/install-latest.sh)"],
+                check=False
+            )
+            if install_result.returncode != 0:
+                print("Warning: Failed to install brev CLI")
+                return False
+        
+        # Login to brev
+        print("Logging into Brev...")
+        login_result = subprocess.run(
+            ["brev", "login", "--token", token, "--skip-browser"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if login_result.returncode != 0:
+            print(f"Error: Failed to login to Brev: {login_result.stderr}")
+            return False
+        
+        # Delete the instance
+        print(f"Deleting workspace {env_id}...")
+        delete_result = subprocess.run(
+            ["brev", "delete", env_id],
+            check=False
+        )
+        if delete_result.returncode != 0:
+            print("Error: Failed to delete Brev instance")
+            return False
+        
+        print(f"\n✓ Successfully deleted Brev instance {env_id}")
+        return True
+        
+    except Exception as e:
+        print(f"Error deleting Brev instance: {e}")
+        return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run lerobot training with config file")
     parser.add_argument("--config", required=True, help="Path to config YAML file")
@@ -230,6 +285,35 @@ def main():
             print("Warning: Model upload failed, but training completed successfully")
     else:
         print("Upload disabled in config (upload.enable: false)")
+    
+    # Auto-delete Brev instance if configured
+    auto_delete_config = config.get("auto_delete", {})
+    if auto_delete_config.get("enable", False):
+        env_id = os.getenv("BREV_ENV_ID")
+        token = os.getenv("BREV_TOKEN")
+        
+        # Prompt for credentials if not set
+        if not env_id:
+            env_id = input("Brev Environment ID (BREV_ENV_ID): ").strip()
+            if env_id:
+                os.environ["BREV_ENV_ID"] = env_id
+        
+        if not token:
+            import getpass
+            token = getpass.getpass("Brev Token (BREV_TOKEN): ").strip()
+            if token:
+                os.environ["BREV_TOKEN"] = token
+        
+        if not env_id:
+            print("Warning: auto_delete.enable is true but BREV_ENV_ID not provided")
+            print("         Instance will not be deleted. Set BREV_ENV_ID to enable auto-delete.")
+        elif not token:
+            print("Warning: auto_delete.enable is true but BREV_TOKEN not provided")
+            print("         Instance will not be deleted. Set BREV_TOKEN to enable auto-delete.")
+        else:
+            delete_success = delete_brev_instance(env_id, token)
+            if not delete_success:
+                print("Warning: Failed to delete Brev instance, but training completed successfully")
     
     sys.exit(0)
 
