@@ -1,9 +1,6 @@
 FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG LEROBOT_REF=main
-# Note: If groot has issues, try a specific commit or tag:
-# ARG LEROBOT_REF=v0.4.2
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -44,11 +41,19 @@ RUN conda install -y -n lerobot ffmpeg -c conda-forge && \
 # Tooling used by training scripts
 RUN pip install -U "huggingface_hub[cli]" wandb pyyaml
 
-# Note: PyTorch will be installed by lerobot as a dependency
-# Groot-specific dependencies (PyTorch, flash-attn) are installed at runtime when groot is selected
+# GR00T-specific installation (as per official groot docs)
+# Step 1: Install PyTorch first (required for flash-attn build)
+# Check https://pytorch.org/get-started/locally/ for your system
+RUN pip install --index-url https://download.pytorch.org/whl/cu121 \
+    "torch>=2.2.1,<2.8.0" "torchvision>=0.21.0,<0.23.0"
 
-# Clone lerobot repo (as per official docs)
-RUN git clone --depth 1 --branch ${LEROBOT_REF} https://github.com/huggingface/lerobot.git /opt/lerobot
+# Step 2: Install flash-attn dependencies
+RUN pip install ninja "packaging>=24.2,<26.0"
 
-# Install lerobot from source in editable mode (as per official docs)
-RUN cd /opt/lerobot && pip install -e .
+# Step 3: Install flash-attn (required for groot, must use --no-build-isolation)
+RUN pip install "flash-attn>=2.5.9,<3.0.0" --no-build-isolation && \
+    python -c "import flash_attn; print(f'Flash Attention {flash_attn.__version__} imported successfully')"
+
+# Step 4: Install lerobot[groot] (NOT base lerobot, as per groot docs)
+RUN pip install lerobot[groot]
+
