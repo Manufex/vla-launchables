@@ -14,11 +14,27 @@ from pathlib import Path
 
 
 def install_policy_extras(policy_type: str):
-    """Install lerobot extras based on policy type."""
+    """Install lerobot extras based on policy type.
+    
+    Note: For groot, all dependencies (PyTorch, flash-attn, lerobot[groot])
+    are installed in the Dockerfile.groot, so we just verify they're available.
+    """
     print(f"Installing lerobot extras for policy type: {policy_type}")
     
+    # For groot, dependencies are installed in Dockerfile.groot
+    # Just verify flash-attn is available
+    if policy_type == "groot":
+        print("Groot: Verifying flash-attn is available (should be installed in Dockerfile)...")
+        try:
+            import flash_attn
+            print(f"✓ Flash Attention {flash_attn.__version__} is available")
+        except ImportError:
+            print("✗ ERROR: Flash-attn not found!")
+            print("Groot requires flash-attn. Make sure you're using Dockerfile.groot")
+            print("and docker-compose.groot.yml for groot training.")
+        return
+    
     install_commands = {
-        "groot": ["pip", "install", "lerobot[groot]"],
         "xvla": ["pip", "install", "-e", "/opt/lerobot[xvla]"],
         "smolvla": ["pip", "install", "-e", "/opt/lerobot[smolvla]"],
         "pi": ["pip", "install", "-e", "/opt/lerobot[pi]"],
@@ -28,7 +44,7 @@ def install_policy_extras(policy_type: str):
     
     if policy_type not in install_commands:
         print(f"Warning: Unknown policy type '{policy_type}', skipping extras installation")
-        print(f"Available policy types: {', '.join(install_commands.keys())}")
+        print(f"Available policy types: groot, {', '.join(install_commands.keys())}")
         return
     
     cmd = install_commands[policy_type]
@@ -64,7 +80,8 @@ def load_config(config_path: str) -> dict:
 
 def build_train_command(config: dict) -> list:
     """Build lerobot_train.py command from config."""
-    cmd = ["python3", "/opt/lerobot/src/lerobot/scripts/lerobot_train.py"]
+    # Use lerobot_train from installed package (works with editable install)
+    cmd = ["python3", "-m", "lerobot.scripts.lerobot_train"]
     
     # Required arguments
     if "dataset" in config and "repo_id" in config["dataset"]:
@@ -83,13 +100,19 @@ def build_train_command(config: dict) -> list:
     cmd.extend(["--steps", str(config.get("steps", 3000))])
     cmd.extend(["--batch_size", str(config.get("batch_size", 8))])
     
-    # Handle dtype (auto-detect if "auto")
-    dtype = config.get("dtype", "auto")
-    if dtype == "auto":
-        dtype = get_dtype()
-    cmd.extend(["--policy.dtype", dtype])
+    # Handle dtype (only for policies that support it)
+    # groot doesn't support dtype parameter
+    policy_type = config.get("policy", {}).get("type", "")
+    if policy_type not in ["groot"]:
+        dtype = config.get("dtype", "auto")
+        if dtype == "auto":
+            dtype = get_dtype()
+        cmd.extend(["--policy.dtype", dtype])
     
-    cmd.extend(["--policy.device", config.get("device", "cuda")])
+    # Device parameter (if supported by policy)
+    device = config.get("device", "cuda")
+    if device:
+        cmd.extend(["--policy.device", device])
     
     # Wandb
     if config.get("wandb", {}).get("enable", True):
@@ -101,6 +124,7 @@ def build_train_command(config: dict) -> list:
     if "policy" in config:
         policy = config["policy"]
         
+        # repo_id is required for some policies (like groot)
         if "repo_id" in policy:
             cmd.extend(["--policy.repo_id", policy["repo_id"]])
         
@@ -115,6 +139,10 @@ def build_train_command(config: dict) -> list:
         
         if policy.get("gradient_checkpointing", False):
             cmd.append("--policy.gradient_checkpointing=true")
+    
+    # Resume flag
+    if config.get("resume", False):
+        cmd.append("--resume=true")
     
     return cmd
 
@@ -241,9 +269,37 @@ def main():
     # Install policy extras
     install_policy_extras(policy_type)
     
-    # Ensure output directory exists
+    # Ensure output directory exists and is unique (unless resuming)
     output_dir = config.get("output_dir", "/workspace/outputs")
-    os.makedirs(output_dir, exist_ok=True)
+    job_name = config.get("job_name", "untitled")
+    resume = config.get("resume", False)
+    
+    # If output directory exists and we're not resuming, make it unique
+    if os.path.exists(output_dir) and not resume:
+        # Create a timestamped subdirectory with counter to ensure uniqueness
+        from datetime import datetime
+        import time
+        base_dir = output_dir
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        counter = 0
+        while True:
+            if counter == 0:
+                output_dir = os.path.join(base_dir, f"{job_name}_{timestamp}")
+            else:
+                output_dir = os.path.join(base_dir, f"{job_name}_{timestamp}_{counter}")
+            
+            if not os.path.exists(output_dir):
+                break
+            counter += 1
+            # Small delay to ensure different timestamps if called rapidly
+            time.sleep(0.1)
+        
+        print(f"Output directory already exists, using: {output_dir}")
+        # Update config so the training command uses the new path
+        config["output_dir"] = output_dir
+    
+    # Don't create the directory here - let lerobot create it
+    # This ensures lerobot's validation passes
     
     # Build and run training command
     train_cmd = build_train_command(config)
