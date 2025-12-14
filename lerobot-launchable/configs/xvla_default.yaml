@@ -5,6 +5,7 @@ dataset:
 
 policy:
   type: "xvla"
+  repo_id: "local/xvla"  # Model repository ID for Hugging Face Hub
 
 output_dir: "/workspace/outputs/xvla"
 job_name: "xvla_cube_transfer_final"
@@ -13,6 +14,7 @@ steps: 3000
 batch_size: 8
 device: "cuda"
 dtype: "auto"  # Will be auto-detected
+resume: false  # Set to true to resume from existing output directory
 
 wandb:
   enable: true

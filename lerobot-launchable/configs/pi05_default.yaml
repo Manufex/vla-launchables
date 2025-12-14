@@ -18,6 +18,7 @@ steps: 3000
 batch_size: 16
 device: "cuda"
 dtype: "auto"  # Will be auto-detected (bfloat16 if supported, else float16)
+resume: false  # Set to true to resume from existing output directory
 
 wandb:
   enable: true
