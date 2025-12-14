@@ -1,0 +1,19 @@
+# GR00T-N1.5 training configuration
+
+dataset:
+  repo_id: "Zasha01/cube_transfer_final"
+
+policy:
+  type: "groot"
+
+output_dir: "/workspace/outputs/groot"
+job_name: "groot_cube_transfer_final"
+
+steps: 3000
+batch_size: 8
+device: "cuda"
+dtype: "auto"  # Will be auto-detected
+
+wandb:
+  enable: true
+
