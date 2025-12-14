@@ -27,3 +27,7 @@ upload:
   private: true
   repo_id: null  # Will use policy.repo_id or generate from job_name if null
 
+auto_delete:
+  enable: false  # Set to true to auto-delete Brev instance after training
+                 # Requires BREV_ENV_ID and BREV_TOKEN environment variables
+
