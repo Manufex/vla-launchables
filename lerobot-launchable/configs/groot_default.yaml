@@ -17,3 +17,8 @@ dtype: "auto"  # Will be auto-detected
 wandb:
   enable: true
 
+upload:
+  enable: true
+  private: true
+  repo_id: null  # Will use policy.repo_id or generate from job_name if null
+

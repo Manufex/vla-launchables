@@ -22,3 +22,8 @@ dtype: "auto"  # Will be auto-detected (bfloat16 if supported, else float16)
 wandb:
   enable: true
 
+upload:
+  enable: true
+  private: true
+  repo_id: null  # Will use policy.repo_id or generate from job_name if null
+

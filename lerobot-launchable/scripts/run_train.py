@@ -2,6 +2,7 @@
 """
 Training script that reads config YAML and runs lerobot training.
 Installs policy extras based on config, then runs training.
+Uploads trained model to Hugging Face Hub after training completes.
 """
 import argparse
 import os
@@ -117,6 +118,53 @@ def build_train_command(config: dict) -> list:
     return cmd
 
 
+def upload_to_hub(output_dir: str, repo_id: str, private: bool = True):
+    """Upload trained model to Hugging Face Hub."""
+    print(f"\n{'='*60}")
+    print(f"Uploading model to Hugging Face Hub")
+    print(f"{'='*60}")
+    print(f"Output directory: {output_dir}")
+    print(f"Repository ID: {repo_id}")
+    print(f"Private: {private}")
+    print()
+    
+    # Check if output directory exists
+    if not os.path.exists(output_dir):
+        print(f"Error: Output directory does not exist: {output_dir}")
+        return False
+    
+    # Use huggingface_hub to upload
+    try:
+        from huggingface_hub import HfApi, create_repo
+        api = HfApi()
+        
+        # Create repo if it doesn't exist (private by default)
+        try:
+            create_repo(repo_id=repo_id, private=private, exist_ok=True, token=os.getenv("HF_TOKEN"))
+            print(f"Repository {repo_id} ready")
+        except Exception as e:
+            print(f"Note: Repository creation/check: {e}")
+        
+        # Upload the model
+        print(f"Uploading files from {output_dir}...")
+        api.upload_folder(
+            folder_path=output_dir,
+            repo_id=repo_id,
+            repo_type="model",
+            token=os.getenv("HF_TOKEN"),
+            ignore_patterns=[".git*", "__pycache__*", "*.pyc"]
+        )
+        print(f"\n✓ Successfully uploaded model to https://huggingface.co/{repo_id}")
+        return True
+        
+    except ImportError:
+        print("Error: huggingface_hub not available, skipping upload")
+        return False
+    except Exception as e:
+        print(f"Error uploading to Hub: {e}")
+        return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run lerobot training with config file")
     parser.add_argument("--config", required=True, help="Path to config YAML file")
@@ -148,8 +196,42 @@ def main():
     print(" ".join(train_cmd))
     print()
     
+    # Run training
     result = subprocess.run(train_cmd, check=False)
-    sys.exit(result.returncode)
+    
+    # Check if training was successful
+    if result.returncode != 0:
+        print(f"\nTraining failed with exit code {result.returncode}")
+        sys.exit(result.returncode)
+    
+    print(f"\n{'='*60}")
+    print(f"Training completed successfully!")
+    print(f"{'='*60}\n")
+    
+    # Upload to Hugging Face Hub if configured
+    upload_config = config.get("upload", {})
+    if upload_config.get("enable", True):
+        repo_id = upload_config.get("repo_id")
+        if not repo_id:
+            # Try to get from policy.repo_id or generate from job_name
+            policy_repo_id = config.get("policy", {}).get("repo_id")
+            if policy_repo_id and not policy_repo_id.startswith("local/"):
+                repo_id = policy_repo_id
+            else:
+                job_name = config.get("job_name", "untitled")
+                # Generate repo_id from job_name (sanitize)
+                repo_id = job_name.replace("_", "-").lower()
+                print(f"Warning: No upload.repo_id specified, using generated: {repo_id}")
+        
+        private = upload_config.get("private", True)
+        upload_success = upload_to_hub(output_dir, repo_id, private)
+        
+        if not upload_success:
+            print("Warning: Model upload failed, but training completed successfully")
+    else:
+        print("Upload disabled in config (upload.enable: false)")
+    
+    sys.exit(0)
 
 
 if __name__ == "__main__":
