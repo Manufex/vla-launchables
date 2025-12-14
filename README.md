@@ -52,9 +52,13 @@ Click one of the deploy buttons below to spin up an instance:
 
 3. **Start training**:
    ```bash
-   ./run.sh configs/pi05_default.yaml
-   # or
-   just train-pi
+   cd lerobot-launchable
+   bash run.sh configs/pi05_default.yaml
+   # For other models, use the corresponding config:
+   # bash run.sh configs/smolvla_default.yaml
+   # bash run.sh configs/xvla_default.yaml
+   # bash run.sh configs/groot_default.yaml
+   # bash run.sh configs/act_default.yaml
    ```
 
 That's it! The script will:
@@ -84,7 +88,7 @@ cd lerobot-launchable
 docker compose build
 
 # Run training
-./run.sh configs/pi05_default.yaml
+bash run.sh configs/pi05_default.yaml
 ```
 
 **Requirements:**
