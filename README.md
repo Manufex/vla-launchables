@@ -35,13 +35,17 @@ Click one of the deploy buttons below to spin up an instance:
 
 ### After SSH'ing In
 
-1. **Enter your credentials** (prompted automatically):
-   - Hugging Face token (`HF_TOKEN`)
-   - Weights & Biases API key (`WANDB_API_KEY`)
-   - Brev token (`BREV_TOKEN`) - optional, only if you want auto-delete
+1. **Enter your credentials** (prompted automatically when you run training):
+   ```bash
+   # Or set them manually before running:
+   export HF_TOKEN="your-hf-token"
+   export WANDB_API_KEY="your-wandb-key"
+   export BREV_TOKEN="your-brev-token"  # Optional, only if you want auto-delete
+   ```
 
 2. **Customize training**:
    ```bash
+   cd lerobot-launchable
    nano configs/pi05_default.yaml
    # Edit: dataset.repo_id, steps, batch_size, output_dir, etc.
    ```
