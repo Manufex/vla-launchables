@@ -6,6 +6,8 @@ dataset:
 policy:
   type: "xvla"
   repo_id: "local/xvla"  # Model repository ID for Hugging Face Hub
+  # Disable LeRobot's internal push_to_hub; upload is handled by run_train.py
+  push_to_hub: false
 
 output_dir: "/checkpoints/xvla"
 job_name: "xvla_cube_transfer_final"

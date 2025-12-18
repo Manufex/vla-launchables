@@ -6,6 +6,8 @@ dataset:
 policy:
   type: "smolvla"
   repo_id: "local/smolvla"  # Model repository ID for Hugging Face Hub
+  # Disable LeRobot's internal push_to_hub; upload is handled by run_train.py
+  push_to_hub: false
 
 output_dir: "/checkpoints/smolvla"
 job_name: "smolvla_cube_transfer_final"

@@ -6,7 +6,9 @@ dataset:
 policy:
   type: "pi05"
   repo_id: "local/pi05"
-  push_to_hub: true
+  # Disable LeRobot's internal push_to_hub to avoid writing large safetensors
+  # files to the small Docker layer. We upload from output_dir via run_train.py.
+  push_to_hub: false
   pretrained_path: "lerobot/pi05_base"
   compile_model: true
   gradient_checkpointing: true
