@@ -22,16 +22,16 @@ Click one of the deploy buttons below to spin up an instance:
 [![Deploy on Brev](https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg)](https://brev.nvidia.com/launchable/deploy?launchableID=env-36lFUACCCYMoYRnJQO2WISupFDU)
 
 **SmolVLA**
-[![Deploy on Brev](https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg)](https://brev.nvidia.com/launchable/deploy/now?launchableID=YOUR_SMOLVLA_LAUNCHABLE_ID)
+[![Deploy on Brev](https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg)](https://brev.nvidia.com/launchable/deploy?launchableID=env-3717Qu63GGBCj9rvIdY21yEoucR)
 
 **GR00T-N1.5**
 [![Deploy on Brev](https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg)](https://brev.nvidia.com/launchable/deploy?launchableID=env-36q0gIw6PpTQlakNOTBPrfgDM8d)
 
 **X-VLA**
-[![Deploy on Brev](https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg)](https://brev.nvidia.com/launchable/deploy/now?launchableID=YOUR_XVLA_LAUNCHABLE_ID)
+[![Deploy on Brev](https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg)](https://brev.nvidia.com/launchable/deploy?launchableID=env-3717h9wQHuxHQnZGlIBrXeVhWR6)
 
 **ACT**
-[![Deploy on Brev](https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg)](https://brev.nvidia.com/launchable/deploy/now?launchableID=YOUR_ACT_LAUNCHABLE_ID)
+[![Deploy on Brev](https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg)](https://brev.nvidia.com/launchable/deploy?launchableID=env-3716y4mNSLHOeu4psyuuLfWadfE)
 
 ### After SSH'ing In
 
