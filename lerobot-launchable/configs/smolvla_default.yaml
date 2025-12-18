@@ -7,10 +7,12 @@ policy:
   type: "smolvla"
   repo_id: "local/smolvla"  # Model repository ID for Hugging Face Hub
 
-output_dir: "/workspace/outputs/smolvla"
+output_dir: "/checkpoints/smolvla"
 job_name: "smolvla_cube_transfer_final"
 
 steps: 3000
+save_checkpoint: true
+save_freq: 3000
 batch_size: 8
 device: "cuda"
 dtype: "auto"  # Will be auto-detected

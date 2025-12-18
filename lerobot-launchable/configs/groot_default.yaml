@@ -7,10 +7,12 @@ policy:
   type: "groot"
   repo_id: "Zasha01/groot_cube_transfer_final"  # Model repository ID for Hugging Face Hub
 
-output_dir: "/workspace/outputs/groot"
+output_dir: "/checkpoints/groot"
 job_name: "groot_cube_transfer_final"
 
 steps: 3000
+save_checkpoint: true
+save_freq: 3000
 batch_size: 8
 device: "cuda"
 resume: false  # Set to true to resume from existing output directory

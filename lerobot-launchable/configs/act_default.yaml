@@ -7,10 +7,12 @@ policy:
   type: "act"
   repo_id: "local/act"  # Model repository ID for Hugging Face Hub
 
-output_dir: "/workspace/outputs/act"
+output_dir: "/checkpoints/act"
 job_name: "act_cube_transfer_final"
 
 steps: 3000
+save_checkpoint: true
+save_freq: 3000
 batch_size: 8
 device: "cuda"
 dtype: "auto"  # Will be auto-detected

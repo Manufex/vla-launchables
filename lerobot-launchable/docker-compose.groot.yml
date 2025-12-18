@@ -25,6 +25,13 @@ services:
       - ../outputs:/workspace/outputs
       - ../cache:/workspace/cache
 
+      # Large host disk for checkpoints (bind-mount)
+      # On the host (outside Docker), create this once:
+      #   sudo mkdir -p /ephemeral/lerobot-checkpoints
+      #   sudo chmod 777 /ephemeral/lerobot-checkpoints  # or adjust permissions
+      # All checkpoints will be written under this directory.
+      - /ephemeral/lerobot-checkpoints:/checkpoints
+
       # Cache volumes (shared across all models)
       - hf-cache:/root/.cache/huggingface
       - torch-cache:/root/.cache/torch

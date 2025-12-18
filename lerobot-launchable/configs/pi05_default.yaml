@@ -11,10 +11,12 @@ policy:
   compile_model: true
   gradient_checkpointing: true
 
-output_dir: "/workspace/outputs/pi05"
+output_dir: "/checkpoints/pi05"
 job_name: "pi05_cube_transfer_final"
 
 steps: 3000
+save_checkpoint: true
+save_freq: 3000
 batch_size: 16
 device: "cuda"
 dtype: "auto"  # Will be auto-detected (bfloat16 if supported, else float16)

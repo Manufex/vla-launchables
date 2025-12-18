@@ -82,6 +82,15 @@ def build_train_command(config: dict) -> list:
     # Optional arguments with defaults
     cmd.extend(["--steps", str(config.get("steps", 3000))])
     cmd.extend(["--batch_size", str(config.get("batch_size", 8))])
+
+    # Checkpoint saving (use lerobot's --save_checkpoint/--save_freq flags)
+    # save_checkpoint: bool (default true if save_freq provided)
+    # save_freq: number of steps between checkpoints
+    if "save_freq" in config:
+        # Ensure checkpointing is enabled when a frequency is set
+        save_checkpoint = config.get("save_checkpoint", True)
+        cmd.extend(["--save_checkpoint", str(save_checkpoint).lower()])
+        cmd.extend(["--save_freq", str(config["save_freq"])])
     
     # Handle dtype (only for policies that support it)
     # groot doesn't support dtype parameter
