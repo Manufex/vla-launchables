@@ -1,5 +1,7 @@
 # VLA Launchables
 
+<video src="vla_launchables.mp4" controls width="100%"></video>
+
 **The easiest way to fine-tune Vision-Language-Action (VLA) models.** No setup, no configuration headaches—just SSH into a launchable, enter your credentials, specify your dataset/training parameters and start training.
 
 ## Why VLA Launchables?
